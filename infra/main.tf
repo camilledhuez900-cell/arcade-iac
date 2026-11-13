@@ -5,6 +5,10 @@ resource "docker_image" "web" {
 }
 
 # Une borne (un conteneur) par ligne de la variable « bornes ».
+# Un volume : un espace de stockage qui survit aux conteneurs.
+resource "docker_volume" "records" {
+  name = "arcade-records"
+}
 resource "docker_container" "borne" {
   for_each = var.bornes
 
@@ -17,6 +21,11 @@ resource "docker_container" "borne" {
     internal = 80
     external = each.value
     ip       = "127.0.0.1"
+  }
+    # Le dossier records/ du site est rangé dans le volume.
+  volumes {
+    volume_name    = docker_volume.records.name
+    container_path = "/usr/share/nginx/html/records"
   }
 
   # Les trois fichiers du jeu, copiés dans le conteneur.
